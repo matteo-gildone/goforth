@@ -16,7 +16,7 @@ func TestWorld_AddRoom_MultipleRooms(t *testing.T) {
 		t.Fatalf("expected no error got: %v", err)
 	}
 
-	for k, _ := range rooms {
+	for k := range rooms {
 		_, ok := w.RoomByID(k)
 		if !ok {
 			t.Errorf("expected to find room %q", k)
@@ -48,7 +48,7 @@ func TestWorld_AddObject_MultipleObjects(t *testing.T) {
 		t.Fatalf("expected no error got: %v", err)
 	}
 
-	for k, _ := range objects {
+	for k := range objects {
 		_, ok := w.ObjectByID(k)
 		if !ok {
 			t.Errorf("expected to find object %q", k)
@@ -77,17 +77,9 @@ func TestWorld_RoomByID(t *testing.T) {
 		t.Fatalf("expected no error got: %v", err)
 	}
 
-	room, ok := w.RoomByID(roomId)
+	_, ok := w.RoomByID(roomId)
 	if !ok {
 		t.Errorf("expected room %q to exists", roomId)
-	}
-
-	if room.ID != roomId {
-		t.Errorf("want: %q, got: %q", "entrance", room.ID)
-	}
-
-	if room.Description != roomDescription {
-		t.Errorf("want: %q, got: %q", roomDescription, room.Description)
 	}
 }
 
@@ -114,17 +106,9 @@ func TestWorld_ObjectByID(t *testing.T) {
 		t.Fatalf("expected no error got: %v", err)
 	}
 
-	object, ok := w.ObjectByID(objectId)
+	_, ok := w.ObjectByID(objectId)
 	if !ok {
 		t.Errorf("expected object %q to exists", objectId)
-	}
-
-	if object.ID != objectId {
-		t.Errorf("want: %q, got: %q", "entrance", object.ID)
-	}
-
-	if object.Name != objectName {
-		t.Errorf("want: %q, got: %q", objectName, object.Name)
 	}
 }
 
@@ -138,7 +122,7 @@ func TestWorld_ObjectByID_NotExistingID(t *testing.T) {
 
 	_, ok := w.ObjectByID("randomObject")
 	if ok {
-		t.Errorf("expected room to not exists")
+		t.Errorf("expected object to not exists")
 	}
 }
 

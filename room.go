@@ -8,7 +8,7 @@ type Room struct {
 	Exits       map[Direction]string
 }
 
-// NewRoom creates a new room
+// NewRoom creates a new room.
 func NewRoom(id, description string) *Room {
 	return &Room{
 		ID:          id,

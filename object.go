@@ -6,7 +6,7 @@ type Object struct {
 	Name string
 }
 
-// NewObject creates a new object
+// NewObject creates a new object.
 func NewObject(id, name string) *Object {
 	return &Object{
 		ID:   id,

@@ -10,6 +10,7 @@ var (
 	ErrInvalidObject = errors.New("object ID must not be empty")
 )
 
+// RoomNotFoundErr is returned when a room ID cannot be resolved in the world.
 type RoomNotFoundErr struct {
 	ID string
 }
@@ -33,7 +34,7 @@ func NewWorld() *World {
 }
 
 // AddRoom adds r to the game world, making it available by ID.
-// It returns ErrInvalidRoom if r as an empty ID.
+// It returns ErrInvalidRoom if r has an empty ID.
 func (w *World) AddRoom(r *Room) error {
 	if r.ID == "" {
 		return ErrInvalidRoom
@@ -43,7 +44,7 @@ func (w *World) AddRoom(r *Room) error {
 }
 
 // AddObject adds o to the game world.
-// It returns ErrInvalidObject if o as an empty ID.
+// It returns ErrInvalidObject if o has an empty ID.
 func (w *World) AddObject(o *Object) error {
 	if o.ID == "" {
 		return ErrInvalidObject
