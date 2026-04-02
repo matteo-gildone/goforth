@@ -13,5 +13,6 @@ func NewRoom(id, description string) *Room {
 	return &Room{
 		ID:          id,
 		Description: description,
+		Exits:       make(map[Direction]string),
 	}
 }
