@@ -79,7 +79,7 @@ func TestWorld_RoomByID(t *testing.T) {
 
 	_, ok := w.RoomByID(roomId)
 	if !ok {
-		t.Errorf("expected room %q to exists", roomId)
+		t.Errorf("expected room %q to exist", roomId)
 	}
 }
 
@@ -94,7 +94,7 @@ func TestWorld_RoomByID_NotExistingID(t *testing.T) {
 
 	_, ok := w.RoomByID("randomRoom")
 	if ok {
-		t.Errorf("expected room to not exists")
+		t.Errorf("expected room to not exist")
 	}
 }
 
@@ -108,7 +108,7 @@ func TestWorld_ObjectByID(t *testing.T) {
 
 	_, ok := w.ObjectByID(objectId)
 	if !ok {
-		t.Errorf("expected object %q to exists", objectId)
+		t.Errorf("expected object %q to exist", objectId)
 	}
 }
 
@@ -122,7 +122,7 @@ func TestWorld_ObjectByID_NotExistingID(t *testing.T) {
 
 	_, ok := w.ObjectByID("randomObject")
 	if ok {
-		t.Errorf("expected object to not exists")
+		t.Errorf("expected object to not exist")
 	}
 }
 
@@ -170,7 +170,7 @@ func TestWorld_ConnectRooms(t *testing.T) {
 
 			room, ok := w.RoomByID(tt.fromID)
 			if !ok {
-				t.Fatalf("expected room to exists")
+				t.Fatalf("expected room to exist")
 			}
 
 			if room.Exits[tt.direction] != tt.toID {

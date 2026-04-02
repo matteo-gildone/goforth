@@ -53,20 +53,20 @@ func (w *World) AddObject(o *Object) error {
 	return nil
 }
 
-// RoomByID gets room by id.
+// RoomByID return the room with the given ID, or false if not found.
 func (w *World) RoomByID(id string) (*Room, bool) {
 	room, ok := w.rooms[id]
 	return room, ok
 }
 
-// ObjectByID gets object by id.
+// ObjectByID return the object with the given ID, or false if not found.
 func (w *World) ObjectByID(id string) (*Object, bool) {
 	object, ok := w.objects[id]
 	return object, ok
 }
 
-// ConnectRooms connects rooms together.
-// Returns error if either rooms aren't present in the game world.
+// ConnectRooms adds a directional exit from one room to another.
+// Returns RoomNotFoundErr if either rooms ID is not registered in the game world.
 func (w *World) ConnectRooms(fromID string, dir Direction, toID string) error {
 	currentRoom, ok := w.RoomByID(fromID)
 	if !ok {
