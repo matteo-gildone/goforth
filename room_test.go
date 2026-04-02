@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestWorld_NewRoom(t *testing.T) {
+func TestNewRoom(t *testing.T) {
 	roomId := "entrance"
 	roomDescription := "Main entrance of the castle"
 	r := NewRoom(roomId, roomDescription)

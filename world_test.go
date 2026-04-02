@@ -5,20 +5,6 @@ import (
 	"testing"
 )
 
-func TestWorld_AddRoom(t *testing.T) {
-	roomId := "entrance"
-	roomDescription := "Main entrance of the castle"
-
-	w, err := setupWorldWithRooms(map[string]string{roomId: roomDescription})
-	if err != nil {
-		t.Fatalf("expected no error got: %v", err)
-	}
-
-	if len(w.rooms) != 1 {
-		t.Errorf("want: %d, got: %d", 1, len(w.rooms))
-	}
-}
-
 func TestWorld_AddRoom_MultipleRooms(t *testing.T) {
 	rooms := map[string]string{
 		"entrance": "Entrance",
@@ -30,8 +16,11 @@ func TestWorld_AddRoom_MultipleRooms(t *testing.T) {
 		t.Fatalf("expected no error got: %v", err)
 	}
 
-	if len(w.rooms) != 2 {
-		t.Errorf("want: %d, got: %d", 2, len(w.rooms))
+	for k, _ := range rooms {
+		_, ok := w.RoomByID(k)
+		if !ok {
+			t.Errorf("expected to find room %q", k)
+		}
 	}
 
 }
@@ -48,20 +37,7 @@ func TestWorld_AddRoomError(t *testing.T) {
 	}
 }
 
-func TestWorld_AddObject(t *testing.T) {
-	objectId := "sword"
-	objectName := "Sword"
-	w, err := setupWorldWithObjects(map[string]string{objectId: objectName})
-	if err != nil {
-		t.Fatalf("expected no error got: %v", err)
-	}
-
-	if len(w.objects) != 1 {
-		t.Errorf("want: %d, got: %d", 1, len(w.objects))
-	}
-}
-
-func TestWorld_AddRoom_MultipleObjects(t *testing.T) {
+func TestWorld_AddObject_MultipleObjects(t *testing.T) {
 	objects := map[string]string{
 		"sword":  "Sword",
 		"shield": "Shield",
@@ -72,8 +48,11 @@ func TestWorld_AddRoom_MultipleObjects(t *testing.T) {
 		t.Fatalf("expected no error got: %v", err)
 	}
 
-	if len(w.objects) != 2 {
-		t.Errorf("want: %d, got: %d", 2, len(w.objects))
+	for k, _ := range objects {
+		_, ok := w.ObjectByID(k)
+		if !ok {
+			t.Errorf("expected to find object %q", k)
+		}
 	}
 }
 
@@ -100,7 +79,7 @@ func TestWorld_RoomByID(t *testing.T) {
 
 	room, ok := w.RoomByID(roomId)
 	if !ok {
-		t.Errorf("expected room to exists")
+		t.Errorf("expected room %q to exists", roomId)
 	}
 
 	if room.ID != roomId {
@@ -137,7 +116,7 @@ func TestWorld_ObjectByID(t *testing.T) {
 
 	object, ok := w.ObjectByID(objectId)
 	if !ok {
-		t.Errorf("expected room to exists")
+		t.Errorf("expected object %q to exists", objectId)
 	}
 
 	if object.ID != objectId {
@@ -224,7 +203,7 @@ func TestWorld_ConnectRooms_Errors(t *testing.T) {
 		toID      string
 		direction Direction
 		rooms     map[string]string
-		wantErr   string
+		wantErrID string
 	}{
 		{
 			name:      "connecting entrance to dining room",
@@ -235,7 +214,7 @@ func TestWorld_ConnectRooms_Errors(t *testing.T) {
 				"entrance": "Entrance",
 				"dining":   "Dining room",
 			},
-			wantErr: "failed to find current room ID \"library\"",
+			wantErrID: "library",
 		},
 		{
 			name:      "connecting entrance to sport room",
@@ -246,7 +225,7 @@ func TestWorld_ConnectRooms_Errors(t *testing.T) {
 				"entrance": "Entrance",
 				"sport":    "Sport room",
 			},
-			wantErr: "failed to find adjacent room ID \"library\"",
+			wantErrID: "library",
 		},
 	}
 
@@ -262,8 +241,13 @@ func TestWorld_ConnectRooms_Errors(t *testing.T) {
 				t.Fatal("expected error got nil")
 			}
 
-			if err.Error() != tt.wantErr {
-				t.Errorf("want: %v, got: %v", tt.wantErr, err.Error())
+			var roomErr *RoomNotFoundErr
+			if !errors.As(err, &roomErr) {
+				t.Fatalf("expected RoomNotFoundErr, got %T", err)
+			}
+
+			if roomErr.ID != tt.wantErrID {
+				t.Errorf("want: %v, got: %v", tt.wantErrID, roomErr.ID)
 			}
 		})
 	}
@@ -276,7 +260,7 @@ func setupWorldWithRooms(rooms map[string]string) (*World, error) {
 
 		err := w.AddRoom(r)
 		if err != nil {
-			return &World{}, err
+			return nil, err
 		}
 	}
 	return w, nil
@@ -289,7 +273,7 @@ func setupWorldWithObjects(objects map[string]string) (*World, error) {
 
 		err := w.AddObject(r)
 		if err != nil {
-			return &World{}, err
+			return nil, err
 		}
 	}
 	return w, nil

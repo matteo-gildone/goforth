@@ -5,8 +5,18 @@ import (
 	"fmt"
 )
 
-var ErrInvalidRoom = errors.New("room ID must not be empty")
-var ErrInvalidObject = errors.New("object ID must not be empty")
+var (
+	ErrInvalidRoom   = errors.New("room ID must not be empty")
+	ErrInvalidObject = errors.New("object ID must not be empty")
+)
+
+type RoomNotFoundErr struct {
+	ID string
+}
+
+func (e *RoomNotFoundErr) Error() string {
+	return fmt.Sprintf("room %q not found", e.ID)
+}
 
 // World represents the game world.
 type World struct {
@@ -14,7 +24,7 @@ type World struct {
 	objects map[string]*Object
 }
 
-// NewWorld creates a new game world
+// NewWorld creates a new game world.
 func NewWorld() *World {
 	return &World{
 		rooms:   make(map[string]*Room),
@@ -22,7 +32,8 @@ func NewWorld() *World {
 	}
 }
 
-// AddRoom adds a new room to the game world
+// AddRoom adds r to the game world, making it available by ID.
+// It returns ErrInvalidRoom if r as an empty ID.
 func (w *World) AddRoom(r *Room) error {
 	if r.ID == "" {
 		return ErrInvalidRoom
@@ -31,7 +42,8 @@ func (w *World) AddRoom(r *Room) error {
 	return nil
 }
 
-// AddObject adds a new object to the game world
+// AddObject adds o to the game world.
+// It returns ErrInvalidObject if o as an empty ID.
 func (w *World) AddObject(o *Object) error {
 	if o.ID == "" {
 		return ErrInvalidObject
@@ -40,28 +52,29 @@ func (w *World) AddObject(o *Object) error {
 	return nil
 }
 
-// RoomByID gets room by id
+// RoomByID gets room by id.
 func (w *World) RoomByID(id string) (*Room, bool) {
 	room, ok := w.rooms[id]
 	return room, ok
 }
 
-// ObjectByID gets object by id
+// ObjectByID gets object by id.
 func (w *World) ObjectByID(id string) (*Object, bool) {
 	object, ok := w.objects[id]
 	return object, ok
 }
 
-// ConnectRooms connects rooms together
+// ConnectRooms connects rooms together.
+// Returns error if either rooms aren't present in the game world.
 func (w *World) ConnectRooms(fromID string, dir Direction, toID string) error {
-	currentRoom, ok := w.rooms[fromID]
+	currentRoom, ok := w.RoomByID(fromID)
 	if !ok {
-		return fmt.Errorf("failed to find current room ID %q", fromID)
+		return &RoomNotFoundErr{ID: fromID}
 	}
 
-	_, ok = w.rooms[toID]
+	_, ok = w.RoomByID(toID)
 	if !ok {
-		return fmt.Errorf("failed to find adjacent room ID %q", toID)
+		return &RoomNotFoundErr{ID: toID}
 	}
 
 	currentRoom.Exits[dir] = toID
