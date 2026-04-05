@@ -108,3 +108,16 @@ func (w *World) PlaceObject(objectID, roomID string) error {
 	w.objectLocations[objectID] = roomID
 	return nil
 }
+
+// ObjectsInRoom return the list of objects in a room
+func (w *World) ObjectsInRoom(roomID string) []*Object {
+	objects := make([]*Object, 0)
+	for k, v := range w.objectLocations {
+		fmt.Println(v == roomID)
+		if v == roomID {
+			o, _ := w.ObjectByID(k)
+			objects = append(objects, o)
+		}
+	}
+	return objects
+}
