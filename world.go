@@ -113,11 +113,38 @@ func (w *World) PlaceObject(objectID, roomID string) error {
 func (w *World) ObjectsInRoom(roomID string) []*Object {
 	objects := make([]*Object, 0)
 	for k, v := range w.objectLocations {
-		fmt.Println(v == roomID)
 		if v == roomID {
 			o, _ := w.ObjectByID(k)
 			objects = append(objects, o)
 		}
 	}
 	return objects
+}
+
+// MoveObjectToPlayer assign am object to a player
+// It returns an error if the object ID is not recognized.
+func (w *World) MoveObjectToPlayer(objectID string) error {
+	_, ok := w.ObjectByID(objectID)
+	if !ok {
+		return &ObjectNotFoundErr{ID: objectID}
+	}
+
+	w.objectLocations[objectID] = "player"
+	return nil
+}
+
+// MoveObjectToRoom assign am object to a player
+// It returns an error if the object or room ID is not recognized.
+func (w *World) MoveObjectToRoom(objectID, roomID string) error {
+	return w.PlaceObject(objectID, roomID)
+}
+
+// PlayerHasObject check if player has an object with a certain ID
+func (w *World) PlayerHasObject(objectID string) bool {
+	for k, v := range w.objectLocations {
+		if k == objectID && v == "player" {
+			return true
+		}
+	}
+	return false
 }

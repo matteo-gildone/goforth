@@ -369,6 +369,58 @@ func TestWorld_ObjectsInRoom(t *testing.T) {
 	}
 }
 
+func TestWorld_MoveObjectToPlayer(t *testing.T) {
+	rooms := map[string]string{
+		"entrance": "Entrance",
+	}
+	objects := map[string]string{
+		"sword": "Sword",
+	}
+
+	w, err := setupWorld(rooms, objects)
+	if err != nil {
+		t.Fatalf("expected no error got: %v", err)
+	}
+
+	err = w.MoveObjectToPlayer("sword")
+	if err != nil {
+		t.Fatalf("expected no error got: %v", err)
+	}
+
+	if !w.PlayerHasObject("sword") {
+		t.Errorf("expected player to own %q", "sword")
+	}
+}
+
+func TestWorld_MoveObjectToRoom(t *testing.T) {
+	rooms := map[string]string{
+		"entrance": "Entrance",
+	}
+	objects := map[string]string{
+		"sword": "Sword",
+	}
+
+	w, err := setupWorld(rooms, objects)
+	if err != nil {
+		t.Fatalf("expected no error got: %v", err)
+	}
+
+	err = w.MoveObjectToPlayer("sword")
+	if err != nil {
+		t.Fatalf("expected no error got: %v", err)
+	}
+
+	if !w.PlayerHasObject("sword") {
+		t.Errorf("expected player to own %q", "sword")
+	}
+
+	err = w.MoveObjectToRoom("sword", "entrance")
+
+	if w.PlayerHasObject("sword") {
+		t.Errorf("expected player to not own %q", "sword")
+	}
+}
+
 func setupWorld(rooms map[string]string, objects map[string]string) (*World, error) {
 	w := NewWorld()
 	for k, v := range rooms {
