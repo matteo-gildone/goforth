@@ -19,17 +19,28 @@ func (e *RoomNotFoundErr) Error() string {
 	return fmt.Sprintf("room %q not found", e.ID)
 }
 
+// ObjectNotFoundErr is returned when an object ID cannot be resolved in the world.
+type ObjectNotFoundErr struct {
+	ID string
+}
+
+func (e *ObjectNotFoundErr) Error() string {
+	return fmt.Sprintf("object %q not found", e.ID)
+}
+
 // World represents the game world.
 type World struct {
-	rooms   map[string]*Room
-	objects map[string]*Object
+	rooms           map[string]*Room
+	objects         map[string]*Object
+	objectLocations map[string]string
 }
 
 // NewWorld creates a new game world.
 func NewWorld() *World {
 	return &World{
-		rooms:   make(map[string]*Room),
-		objects: make(map[string]*Object),
+		rooms:           make(map[string]*Room),
+		objects:         make(map[string]*Object),
+		objectLocations: make(map[string]string),
 	}
 }
 
@@ -53,20 +64,20 @@ func (w *World) AddObject(o *Object) error {
 	return nil
 }
 
-// RoomByID gets room by id.
+// RoomByID return the room with the given ID, or false if not found.
 func (w *World) RoomByID(id string) (*Room, bool) {
 	room, ok := w.rooms[id]
 	return room, ok
 }
 
-// ObjectByID gets object by id.
+// ObjectByID return the object with the given ID, or false if not found.
 func (w *World) ObjectByID(id string) (*Object, bool) {
 	object, ok := w.objects[id]
 	return object, ok
 }
 
-// ConnectRooms connects rooms together.
-// Returns error if either rooms aren't present in the game world.
+// ConnectRooms adds a directional exit from one room to another.
+// Returns RoomNotFoundErr if either rooms ID is not registered in the game world.
 func (w *World) ConnectRooms(fromID string, dir Direction, toID string) error {
 	currentRoom, ok := w.RoomByID(fromID)
 	if !ok {
@@ -80,4 +91,64 @@ func (w *World) ConnectRooms(fromID string, dir Direction, toID string) error {
 
 	currentRoom.Exits[dir] = toID
 	return nil
+}
+
+// ConnectRoomsBidirectional adds a directional exit from one room to another.
+// Returns RoomNotFoundErr if either rooms ID is not registered in the game world.
+func (w *World) ConnectRoomsBidirectional(fromID string, dir Direction, toID string) error {
+	if err := w.ConnectRooms(fromID, dir, toID); err != nil {
+		return err
+	}
+	return w.ConnectRooms(toID, oppositeDirectionMap[dir], fromID)
+}
+
+// PlaceObject sets the initial location of an object within the world.
+// It returns an error if the object or room ID is not recognized.
+func (w *World) PlaceObject(objectID, roomID string) error {
+	_, ok := w.ObjectByID(objectID)
+	if !ok {
+		return &ObjectNotFoundErr{ID: objectID}
+	}
+	_, ok = w.RoomByID(roomID)
+	if !ok {
+		return &RoomNotFoundErr{ID: roomID}
+	}
+
+	w.objectLocations[objectID] = roomID
+	return nil
+}
+
+// ObjectsInRoom return the list of objects in a room
+func (w *World) ObjectsInRoom(roomID string) []*Object {
+	objects := make([]*Object, 0)
+	for k, v := range w.objectLocations {
+		if v == roomID {
+			o, _ := w.ObjectByID(k)
+			objects = append(objects, o)
+		}
+	}
+	return objects
+}
+
+// MoveObjectToPlayer assign an object to a player
+// It returns an error if the object ID is not recognized.
+func (w *World) MoveObjectToPlayer(objectID string) error {
+	_, ok := w.ObjectByID(objectID)
+	if !ok {
+		return &ObjectNotFoundErr{ID: objectID}
+	}
+
+	w.objectLocations[objectID] = "player"
+	return nil
+}
+
+// MoveObjectToRoom assign an object to a room
+// It returns an error if the object or room ID is not recognized.
+func (w *World) MoveObjectToRoom(objectID, roomID string) error {
+	return w.PlaceObject(objectID, roomID)
+}
+
+// PlayerHasObject check if player has an object with a certain ID
+func (w *World) PlayerHasObject(objectID string) bool {
+	return w.objectLocations[objectID] == "player"
 }
