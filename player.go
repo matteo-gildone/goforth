@@ -7,17 +7,17 @@ type Player struct {
 	currentRoomID string
 }
 
-// MoveTo moves player into another room
+// MoveTo moves player into another room.
 func (p *Player) MoveTo(roomID string) {
 	p.currentRoomID = roomID
 }
 
-// CurrentRoom return current player location
+// CurrentRoom return current player location.
 func (p *Player) CurrentRoom() string {
 	return p.currentRoomID
 }
 
-// NewPlayer creates a new player in the game world.
+// NewPlayer creates a new player with the given starting room ID.
 func NewPlayer(startingRoomID string) *Player {
 	return &Player{currentRoomID: startingRoomID}
 }
