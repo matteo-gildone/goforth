@@ -13,10 +13,8 @@ type Command struct {
 
 // Parse tokenizes a raw input line into a Command.
 // Input is trimmed, lowercased, and split on whitespace.
-// An empty or whitespace-only line returns a zero Command.
+// An empty or whitespace-only line returns a zero Command with nil Args.
 func Parse(line string) Command {
-	line = strings.TrimSpace(line)
-
 	fields := strings.Fields(strings.ToLower(line))
 	if len(fields) == 0 {
 		return Command{}
