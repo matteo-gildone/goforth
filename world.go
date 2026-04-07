@@ -96,27 +96,10 @@ func (w *World) ConnectRooms(fromID string, dir Direction, toID string) error {
 // ConnectRoomsBidirectional adds a directional exit from one room to another.
 // Returns RoomNotFoundErr if either rooms ID is not registered in the game world.
 func (w *World) ConnectRoomsBidirectional(fromID string, dir Direction, toID string) error {
-	_, ok := w.RoomByID(fromID)
-	if !ok {
-		return &RoomNotFoundErr{ID: fromID}
-	}
-
-	_, ok = w.RoomByID(toID)
-	if !ok {
-		return &RoomNotFoundErr{ID: toID}
-	}
-
-	oppositeDirection := oppositeDirectionMap[dir]
-
-	err := w.ConnectRooms(fromID, dir, toID)
-	if err != nil {
+	if err := w.ConnectRooms(fromID, dir, toID); err != nil {
 		return err
 	}
-	err = w.ConnectRooms(toID, oppositeDirection, fromID)
-	if err != nil {
-		return err
-	}
-	return nil
+	return w.ConnectRooms(toID, oppositeDirectionMap[dir], fromID)
 }
 
 // PlaceObject sets the initial location of an object within the world.
@@ -159,7 +142,7 @@ func (w *World) MoveObjectToPlayer(objectID string) error {
 	return nil
 }
 
-// MoveObjectToRoom assign an object to a player
+// MoveObjectToRoom assign an object to a room
 // It returns an error if the object or room ID is not recognized.
 func (w *World) MoveObjectToRoom(objectID, roomID string) error {
 	return w.PlaceObject(objectID, roomID)

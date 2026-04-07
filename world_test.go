@@ -220,7 +220,6 @@ func TestWorld_ConnectRooms_Bidirectional(t *testing.T) {
 	fromID := "entrance"
 	toID := "dining"
 	direction := East
-	oppositeDirection := oppositeDirectionMap[direction]
 	rooms := map[string]string{
 		"entrance": "Entrance",
 		"dining":   "Dining room",
@@ -249,7 +248,7 @@ func TestWorld_ConnectRooms_Bidirectional(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected room to exist")
 	}
-	if adjacentRoom.Exits[oppositeDirection] != fromID {
+	if adjacentRoom.Exits[West] != fromID {
 		t.Errorf("want: %q, got: %q", fromID, adjacentRoom.Exits[direction])
 	}
 }
@@ -291,7 +290,7 @@ func TestWorld_PlaceObject_Errors(t *testing.T) {
 		wantErrID     string
 	}{
 		{
-			name:     "place object in a room",
+			name:     "place not existing object in a room",
 			objectID: "shield",
 			roomID:   "entrance",
 			rooms: map[string]string{
@@ -304,7 +303,7 @@ func TestWorld_PlaceObject_Errors(t *testing.T) {
 			wantErrID:     "shield",
 		},
 		{
-			name:     "place object in a room",
+			name:     "place object in a not existing room",
 			objectID: "sword",
 			roomID:   "sport",
 			rooms: map[string]string{
