@@ -1,6 +1,7 @@
 package goforth
 
 import (
+	"slices"
 	"testing"
 )
 
@@ -31,6 +32,11 @@ func TestParse(t *testing.T) {
 			wantCommand: Command{Name: "pick", Args: []string{"up", "sword"}},
 		},
 		{
+			name:        "multiple words internal spaces",
+			input:       "go      north",
+			wantCommand: Command{Name: "go", Args: []string{"north"}},
+		},
+		{
 			name:        "upper case words",
 			input:       "GO NORTH",
 			wantCommand: Command{Name: "go", Args: []string{"north"}},
@@ -47,6 +53,10 @@ func TestParse(t *testing.T) {
 			result := Parse(tt.input)
 			if result.Name != tt.wantCommand.Name {
 				t.Errorf("want: %q, got: %q", tt.wantCommand.Name, result.Name)
+			}
+
+			if !slices.Equal(result.Args, tt.wantCommand.Args) {
+				t.Errorf("want: %v, got: %v", result.Args, tt.wantCommand.Args)
 			}
 		})
 	}

@@ -15,9 +15,9 @@ type Command struct {
 // Input is trimmed, lowercased, and split on whitespace.
 // An empty or whitespace-only line returns a zero Command.
 func Parse(line string) Command {
-	line = strings.Trim(line, " ")
-	line = strings.ToLower(line)
-	fields := strings.Fields(line)
+	line = strings.TrimSpace(line)
+
+	fields := strings.Fields(strings.ToLower(line))
 	if len(fields) == 0 {
 		return Command{}
 	}
