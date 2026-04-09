@@ -6,10 +6,10 @@ type Game struct {
 	Registry *CommandRegistry
 }
 
-func NewGame() *Game {
+func NewGame(w *World, p *Player, r *CommandRegistry) *Game {
 	return &Game{
-		World:    NewWorld(),
-		Player:   NewPlayer(""),
-		Registry: NewCommandRegistry(),
+		World:    w,
+		Player:   p,
+		Registry: r,
 	}
 }

@@ -47,10 +47,6 @@ func (cr *CommandRegistry) Dispatch(cmd Command, g *Game) error {
 		return nil
 	}
 
-	if err := command(cmd.Args, g); err != nil {
-		return err
-	}
-
 	return command(cmd.Args, g)
 }
 
