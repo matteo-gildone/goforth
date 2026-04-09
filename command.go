@@ -27,15 +27,15 @@ type CommandRegistry struct {
 	handlers map[string]HandlerFunc
 }
 
-// Register adds a handler for the given command name
-// If name is empty the call is a no-op
+// Register adds a handler for the given command name.
+// If name is empty the call is a no-op.
 func (cr *CommandRegistry) Register(name string, h HandlerFunc) {
 	if name != "" {
 		cr.handlers[name] = h
 	}
 }
 
-// Dispatch runs handler function associated to a command
+// Dispatch runs handler function associated to a command.
 func (cr *CommandRegistry) Dispatch(cmd Command, g *Game) error {
 	if cmd.Name == "" {
 		return nil
