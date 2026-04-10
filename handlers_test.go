@@ -81,6 +81,11 @@ func TestTakeHandler(t *testing.T) {
 		t.Fatalf("expected no error got: %v", err)
 	}
 
+	err = g.World.PlaceObject("sword", "entrance")
+	if err != nil {
+		t.Fatalf("expected no error got: %v", err)
+	}
+
 	err = TakeHandler([]string{"sword"}, g)
 	if err != nil {
 		t.Fatalf("expected no error got: %v", err)

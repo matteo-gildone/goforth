@@ -5,7 +5,6 @@ import "fmt"
 // LookHandler prints the description and exits of the player's current room.
 // Register it as "look" in a CommandRegistry.
 func LookHandler(args []string, g *Game) error {
-	fmt.Println("here!")
 	currentRoom, ok := g.World.RoomByID(g.Player.CurrentRoom())
 	if !ok {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
@@ -56,11 +55,13 @@ func TakeHandler(args []string, g *Game) error {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
 	}
 
-	err := g.World.MoveObjectToPlayer(args[0])
-	if err != nil {
-		return err
-	}
+	objects := g.World.ObjectsInRoom(g.Player.CurrentRoom())
 
+	for _, object := range objects {
+		if object.ID == args[0] {
+			return g.World.MoveObjectToPlayer(args[0])
+		}
+	}
 	return nil
 }
 
@@ -77,12 +78,13 @@ func DropHandler(args []string, g *Game) error {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
 	}
 
-	err := g.World.PlaceObject(args[0], g.Player.CurrentRoom())
-	if err != nil {
-		return err
+	owned := g.World.PlayerHasObject(args[0])
+	if !owned {
+		fmt.Printf("you don't own %q\n", args[0])
+		return nil
 	}
 
-	return nil
+	return g.World.PlaceObject(args[0], g.Player.CurrentRoom())
 }
 
 // InventoryHandler lists objects present in players' inventory.
@@ -121,7 +123,7 @@ func RegisterDefaultHandlers(r *CommandRegistry) {
 		"e":     East,
 		"up":    Up,
 		"u":     Up,
-		"Down":  Down,
+		"down":  Down,
 		"d":     Down,
 	}
 
