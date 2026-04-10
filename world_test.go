@@ -429,6 +429,99 @@ func TestWorld_ObjectsInRoom(t *testing.T) {
 	}
 }
 
+func TestWorld_PlayerInventory(t *testing.T) {
+	tests := []struct {
+		name               string
+		rooms              map[string]string
+		objects            map[string]string
+		objectsInRoom      map[string]string
+		objectsInInventory []string
+		wantLength         int
+	}{
+		{
+			name: "player has no objects",
+			rooms: map[string]string{
+				"entrance": "Entrance",
+			},
+			objects: map[string]string{
+				"sword": "Sword",
+			},
+			objectsInRoom:      map[string]string{},
+			objectsInInventory: []string{},
+			wantLength:         0,
+		},
+		{
+			name: "player has one object",
+			rooms: map[string]string{
+				"entrance": "Entrance",
+			},
+			objects: map[string]string{
+				"sword":  "Sword",
+				"shield": "Shield",
+			},
+			objectsInRoom: map[string]string{
+				"sword": "entrance",
+			},
+			objectsInInventory: []string{
+				"shield",
+			},
+			wantLength: 1,
+		},
+		{
+			name: "player has two objects",
+			rooms: map[string]string{
+				"entrance": "Entrance",
+			},
+			objects: map[string]string{
+				"sword":  "Sword",
+				"shield": "Shield",
+				"key":    "Dwarven key",
+				"potion": "Health potion",
+				"mana":   "Mana potion",
+			},
+			objectsInRoom: map[string]string{
+				"sword":  "entrance",
+				"shield": "entrance",
+				"potion": "entrance",
+			},
+			objectsInInventory: []string{
+				"key",
+				"mana",
+			},
+			wantLength: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w, err := setupWorld(tt.rooms, tt.objects)
+			if err != nil {
+				t.Fatalf("expected no error got: %v", err)
+			}
+
+			for k, v := range tt.objectsInRoom {
+				err := w.PlaceObject(k, v)
+				if err != nil {
+					t.Fatalf("expected no error got: %v", err)
+				}
+			}
+
+			for _, o := range tt.objectsInInventory {
+				err := w.MoveObjectToPlayer(o)
+				if err != nil {
+					t.Fatalf("expected no error got: %v", err)
+				}
+			}
+
+			objects := w.PlayerInventory()
+
+			if len(objects) != tt.wantLength {
+				t.Errorf("want: %d, got: %d", tt.wantLength, len(objects))
+			}
+		})
+	}
+}
+
 func TestWorld_MoveObjectToPlayer(t *testing.T) {
 	rooms := map[string]string{
 		"entrance": "Entrance",

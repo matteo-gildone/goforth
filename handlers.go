@@ -5,6 +5,7 @@ import "fmt"
 // LookHandler prints the description and exits of the player's current room.
 // Register it as "look" in a CommandRegistry.
 func LookHandler(args []string, g *Game) error {
+	fmt.Println("here!")
 	currentRoom, ok := g.World.RoomByID(g.Player.CurrentRoom())
 	if !ok {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
@@ -13,7 +14,7 @@ func LookHandler(args []string, g *Game) error {
 	fmt.Println(currentRoom.Description)
 	fmt.Println("Exits:")
 	for k := range currentRoom.Exits {
-		fmt.Println(k)
+		fmt.Printf("  %s\n", k)
 	}
 	return nil
 }
@@ -67,7 +68,7 @@ func TakeHandler(args []string, g *Game) error {
 // Register it as "drop" in a CommandRegistry.
 func DropHandler(args []string, g *Game) error {
 	if len(args) == 0 {
-		fmt.Println("take what?")
+		fmt.Println("drop what?")
 		return nil
 	}
 
@@ -82,4 +83,59 @@ func DropHandler(args []string, g *Game) error {
 	}
 
 	return nil
+}
+
+// InventoryHandler lists objects present in players' inventory.
+// Register it as "inventory" in a CommandRegistry.
+func InventoryHandler(args []string, g *Game) error {
+	objects := g.World.PlayerInventory()
+	if len(objects) == 0 {
+		fmt.Println("nothing in the inventory")
+		return nil
+	}
+
+	fmt.Println("Inventory:")
+	for _, object := range objects {
+		fmt.Printf("  %s\n", object.Name)
+	}
+
+	return nil
+}
+
+// QuitHandler signal end of the game.
+// Register it as "quit" in a CommandRegistry.
+func QuitHandler(args []string, g *Game) error {
+	return ErrQuit
+}
+
+// RegisterDefaultHandlers register the default handlers.
+func RegisterDefaultHandlers(r *CommandRegistry) {
+	aliases := map[string]Direction{
+		"n":     North,
+		"north": North,
+		"south": South,
+		"s":     South,
+		"west":  West,
+		"w":     West,
+		"east":  East,
+		"e":     East,
+		"up":    Up,
+		"u":     Up,
+		"Down":  Down,
+		"d":     Down,
+	}
+
+	for alias, dir := range aliases {
+		d := dir
+		r.Register(alias, func(args []string, g *Game) error {
+			return GoHandler([]string{string(d)}, g)
+		})
+	}
+
+	r.Register("go", GoHandler)
+	r.Register("look", LookHandler)
+	r.Register("take", TakeHandler)
+	r.Register("drop", DropHandler)
+	r.Register("inventory", InventoryHandler)
+	r.Register("quit", QuitHandler)
 }
