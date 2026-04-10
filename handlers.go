@@ -31,7 +31,7 @@ func GoHandler(args []string, g *Game) error {
 		fmt.Printf("you can't go %s\n", Direction(args[0]))
 	}
 
-	_, ok = g.World.RoomByID(g.Player.CurrentRoom())
+	_, ok = g.World.RoomByID(roomID)
 	if !ok {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
 	}
