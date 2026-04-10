@@ -21,6 +21,11 @@ func LookHandler(args []string, g *Game) error {
 // GoHandler resolves direction and moves player.
 // Register it as "go" in a CommandRegistry.
 func GoHandler(args []string, g *Game) error {
+	if len(args) == 0 {
+		fmt.Println("go where?")
+		return nil
+	}
+
 	currentRoom, ok := g.World.RoomByID(g.Player.CurrentRoom())
 	if !ok {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
@@ -29,14 +34,52 @@ func GoHandler(args []string, g *Game) error {
 	roomID, ok := currentRoom.Exits[Direction(args[0])]
 	if !ok {
 		fmt.Printf("you can't go %s\n", Direction(args[0]))
+		return nil
 	}
 
-	_, ok = g.World.RoomByID(roomID)
+	g.Player.MoveTo(roomID)
+
+	return nil
+}
+
+// TakeHandler moves named object from current room to player inventory.
+// Register it as "take" in a CommandRegistry.
+func TakeHandler(args []string, g *Game) error {
+	if len(args) == 0 {
+		fmt.Println("take what?")
+		return nil
+	}
+
+	_, ok := g.World.RoomByID(g.Player.CurrentRoom())
 	if !ok {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
 	}
 
-	g.Player.MoveTo(roomID)
+	err := g.World.MoveObjectToPlayer(args[0])
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DropHandler moves named object from player inventory to current room.
+// Register it as "drop" in a CommandRegistry.
+func DropHandler(args []string, g *Game) error {
+	if len(args) == 0 {
+		fmt.Println("take what?")
+		return nil
+	}
+
+	_, ok := g.World.RoomByID(g.Player.CurrentRoom())
+	if !ok {
+		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
+	}
+
+	err := g.World.PlaceObject(args[0], g.Player.CurrentRoom())
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
