@@ -130,6 +130,18 @@ func (w *World) ObjectsInRoom(roomID string) []*Object {
 	return objects
 }
 
+// PlayerInventory return the list of objects in player's inventory
+func (w *World) PlayerInventory() []*Object {
+	objects := make([]*Object, 0)
+	for k := range w.objectLocations {
+		if w.PlayerHasObject(k) {
+			o, _ := w.ObjectByID(k)
+			objects = append(objects, o)
+		}
+	}
+	return objects
+}
+
 // MoveObjectToPlayer assign an object to a player
 // It returns an error if the object ID is not recognized.
 func (w *World) MoveObjectToPlayer(objectID string) error {
