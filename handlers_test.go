@@ -88,7 +88,7 @@ func TestGoHandler_InvalidDirection(t *testing.T) {
 	}
 
 	if g.Player.CurrentRoom() != "entrance" {
-		t.Errorf("want: %q, got: %q", "dining", g.Player.CurrentRoom())
+		t.Errorf("want: %q, got: %q", "entrance", g.Player.CurrentRoom())
 	}
 }
 
