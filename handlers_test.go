@@ -2,6 +2,7 @@ package goforth
 
 import (
 	"errors"
+	"slices"
 	"testing"
 )
 
@@ -75,6 +76,22 @@ func TestGoHandler(t *testing.T) {
 	}
 }
 
+func TestGoHandler_InvalidDirection(t *testing.T) {
+	g, err := setupGame()
+	if err != nil {
+		t.Fatalf("expected no error got: %v", err)
+	}
+
+	err = GoHandler([]string{"sideways"}, g)
+	if err != nil {
+		t.Fatalf("expected no error got: %v", err)
+	}
+
+	if g.Player.CurrentRoom() != "entrance" {
+		t.Errorf("want: %q, got: %q", "dining", g.Player.CurrentRoom())
+	}
+}
+
 func TestTakeHandler(t *testing.T) {
 	g, err := setupGame()
 	if err != nil {
@@ -108,9 +125,18 @@ func TestDropHandler(t *testing.T) {
 	}
 
 	err = DropHandler([]string{"sword"}, g)
+	if err != nil {
+		t.Fatalf("expected no error got: %v", err)
+	}
 
 	if g.World.PlayerHasObject("sword") {
 		t.Errorf("player should have dropped %q", "sword")
+	}
+
+	if !slices.ContainsFunc(g.World.ObjectsInRoom("entrance"), func(object *Object) bool {
+		return object.ID == "sword"
+	}) {
+		t.Errorf("%q should be in the room", "sword")
 	}
 }
 
@@ -149,7 +175,10 @@ func setupGame() (*Game, error) {
 		}
 	}
 
-	w.ConnectRoomsBidirectional("entrance", North, "dining")
+	err := w.ConnectRoomsBidirectional("entrance", North, "dining")
+	if err != nil {
+		return nil, err
+	}
 
 	g := NewGame(w, p, c)
 

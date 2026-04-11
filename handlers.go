@@ -62,6 +62,8 @@ func TakeHandler(args []string, g *Game) error {
 			return g.World.MoveObjectToPlayer(args[0])
 		}
 	}
+
+	fmt.Printf("there is no %q here\n", args[0])
 	return nil
 }
 
