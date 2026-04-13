@@ -77,9 +77,9 @@ func setupGame() (*Game, error) {
 
 	p := NewPlayer("entrance")
 	w := NewWorld()
-	r := NewCommandRegistry()
+	c := NewCommandRegistry()
 
-	RegisterDefaultHandlers(r)
+	RegisterDefaultHandlers(c)
 
 	for k, v := range rooms {
 		r := NewRoom(k, v)
@@ -104,7 +104,7 @@ func setupGame() (*Game, error) {
 		return nil, err
 	}
 
-	g := NewGame(w, p, r)
+	g := NewGame(w, p, c)
 	err = g.World.PlaceObject("sword", "entrance")
 	if err != nil {
 		return nil, err

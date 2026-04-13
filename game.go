@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-// Game holds the complete state of a running game session
+// Game holds the complete state of a running game session.
 // World, Player and Registry are exported so consumers can inspect
 // and extend state between commands if needed.
 type Game struct {
