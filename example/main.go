@@ -14,73 +14,22 @@ func main() {
 
 	goforth.RegisterDefaultHandlers(r)
 
-	err := w.AddRoom(goforth.NewRoom("entrance", "Main entrance"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
-	err = w.AddRoom(goforth.NewRoom("dining", "Dining room"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-	err = w.AddRoom(goforth.NewRoom("sport", "Sport room"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-	err = w.AddRoom(goforth.NewRoom("library", "Library room"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
-	err = w.AddObject(goforth.NewObject("sword", "An elven sword"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
-	err = w.AddObject(goforth.NewObject("key", "A magic key"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
-	err = w.ConnectRoomsBidirectional("entrance", goforth.North, "dining")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
-	err = w.ConnectRoomsBidirectional("dinging", goforth.West, "sport")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
-	err = w.ConnectRoomsBidirectional("dinging", goforth.North, "library")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
-	err = w.PlaceObject("sword", "library")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
-	err = w.PlaceObject("key", "sport")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
-
+	must(w.AddRoom(goforth.NewRoom("entrance", "Main entrance")))
+	must(w.AddRoom(goforth.NewRoom("dining", "Dining room")))
+	must(w.AddRoom(goforth.NewRoom("sport", "Sport room")))
+	must(w.AddRoom(goforth.NewRoom("library", "Library room")))
+	must(w.AddObject(goforth.NewObject("sword", "An elven sword")))
+	must(w.AddObject(goforth.NewObject("key", "A magic key")))
+	must(w.ConnectRoomsBidirectional("entrance", goforth.North, "dining"))
+	must(w.ConnectRoomsBidirectional("dinging", goforth.West, "sport"))
+	must(w.ConnectRoomsBidirectional("dinging", goforth.North, "library"))
+	must(w.PlaceObject("sword", "library"))
+	must(w.PlaceObject("key", "sport"))
 	g := goforth.NewGame(w, p, r)
-	err = g.Run(os.Stdin)
+	must(g.Run(os.Stdin))
+}
 
+func must(err error) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
