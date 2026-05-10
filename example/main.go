@@ -21,11 +21,11 @@ func main() {
 	must(w.AddObject(goforth.NewObject("sword", "An elven sword")))
 	must(w.AddObject(goforth.NewObject("key", "A magic key")))
 	must(w.ConnectRoomsBidirectional("entrance", goforth.North, "dining"))
-	must(w.ConnectRoomsBidirectional("dinging", goforth.West, "sport"))
-	must(w.ConnectRoomsBidirectional("dinging", goforth.North, "library"))
+	must(w.ConnectRoomsBidirectional("dining", goforth.West, "sport"))
+	must(w.ConnectRoomsBidirectional("dining", goforth.North, "library"))
 	must(w.PlaceObject("sword", "library"))
 	must(w.PlaceObject("key", "sport"))
-	g := goforth.NewGame(w, p, r)
+	g := goforth.NewGame(w, p, r, os.Stdout)
 	must(g.Run(os.Stdin))
 }
 

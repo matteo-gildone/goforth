@@ -43,7 +43,7 @@ func (cr *CommandRegistry) Dispatch(cmd Command, g *Game) error {
 
 	command, ok := cr.handlers[cmd.Name]
 	if !ok {
-		fmt.Println("I don't know how to do that.")
+		fmt.Fprintln(g.Out, "I don't know how to do that.")
 		return nil
 	}
 

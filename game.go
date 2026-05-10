@@ -13,6 +13,7 @@ type Game struct {
 	World    *World
 	Player   *Player
 	Registry *CommandRegistry
+	Out      io.Writer
 }
 
 // Run reads lines from r in a loop, calls Parse, calls Registry.Dispatch.
@@ -33,10 +34,11 @@ func (g *Game) Run(r io.Reader) error {
 }
 
 // NewGame creates a new game with the given world, player and registry.
-func NewGame(w *World, p *Player, r *CommandRegistry) *Game {
+func NewGame(w *World, p *Player, r *CommandRegistry, o io.Writer) *Game {
 	return &Game{
 		World:    w,
 		Player:   p,
 		Registry: r,
+		Out:      o,
 	}
 }

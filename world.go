@@ -154,12 +154,6 @@ func (w *World) MoveObjectToPlayer(objectID string) error {
 	return nil
 }
 
-// MoveObjectToRoom assign an object to a room
-// It returns an error if the object or room ID is not recognized.
-func (w *World) MoveObjectToRoom(objectID, roomID string) error {
-	return w.PlaceObject(objectID, roomID)
-}
-
 // PlayerHasObject check if player has an object with a certain ID
 func (w *World) PlayerHasObject(objectID string) bool {
 	return w.objectLocations[objectID] == "player"

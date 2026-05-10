@@ -1,13 +1,15 @@
 package goforth
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 )
 
 func TestGame_Run(t *testing.T) {
 	t.Run("player moves to another room", func(t *testing.T) {
-		g, err := setupGame()
+		var buf bytes.Buffer
+		g, err := setupGame(&buf)
 		if err != nil {
 			t.Fatalf("expected no error got: %v", err)
 		}
@@ -23,7 +25,8 @@ func TestGame_Run(t *testing.T) {
 	})
 
 	t.Run("player pick up sword", func(t *testing.T) {
-		g, err := setupGame()
+		var buf bytes.Buffer
+		g, err := setupGame(&buf)
 		if err != nil {
 			t.Fatalf("expected no error got: %v", err)
 		}
@@ -38,7 +41,8 @@ func TestGame_Run(t *testing.T) {
 		}
 	})
 	t.Run("player drop item in another room", func(t *testing.T) {
-		g, err := setupGame()
+		var buf bytes.Buffer
+		g, err := setupGame(&buf)
 		if err != nil {
 			t.Fatalf("expected no error got: %v", err)
 		}
@@ -62,7 +66,7 @@ func TestGame_Run(t *testing.T) {
 	})
 }
 
-func setupGame() (*Game, error) {
+func setupGame(out *bytes.Buffer) (*Game, error) {
 	rooms := map[string]string{
 		"entrance": "Entrance",
 		"dining":   "Dining room",
@@ -104,11 +108,60 @@ func setupGame() (*Game, error) {
 		return nil, err
 	}
 
-	g := NewGame(w, p, c)
+	g := NewGame(w, p, c, out)
 	err = g.World.PlaceObject("sword", "entrance")
 	if err != nil {
 		return nil, err
 	}
+
+	return g, nil
+}
+
+func setupAliasWorld(out *bytes.Buffer) (*Game, error) {
+	rooms := map[string]string{
+		"entrance": "Entrance",
+		"dining":   "Dining room",
+		"sport":    "Sport room",
+		"library":  "Library",
+		"kitchen":  "Kitchen",
+	}
+
+	p := NewPlayer("entrance")
+	w := NewWorld()
+	c := NewCommandRegistry()
+
+	RegisterDefaultHandlers(c)
+
+	for k, v := range rooms {
+		r := NewRoom(k, v)
+
+		err := w.AddRoom(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err := w.ConnectRoomsBidirectional("entrance", North, "dining")
+	if err != nil {
+		return nil, err
+	}
+
+	err = w.ConnectRoomsBidirectional("entrance", East, "sport")
+	if err != nil {
+		return nil, err
+	}
+
+	err = w.ConnectRoomsBidirectional("entrance", West, "library")
+	if err != nil {
+		return nil, err
+	}
+
+	err = w.ConnectRoomsBidirectional("entrance", South, "kitchen")
+	if err != nil {
+		return nil, err
+	}
+
+	g := NewGame(w, p, c, out)
 
 	return g, nil
 }

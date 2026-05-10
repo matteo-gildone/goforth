@@ -10,10 +10,10 @@ func LookHandler(args []string, g *Game) error {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
 	}
 
-	fmt.Println(currentRoom.Description)
-	fmt.Println("Exits:")
+	fmt.Fprintln(g.Out, currentRoom.Description)
+	fmt.Fprintln(g.Out, "Exits:")
 	for k := range currentRoom.Exits {
-		fmt.Printf("  %s\n", k)
+		fmt.Fprintf(g.Out, "  %s\n", k)
 	}
 	return nil
 }
@@ -22,7 +22,7 @@ func LookHandler(args []string, g *Game) error {
 // Register it as "go" in a CommandRegistry.
 func GoHandler(args []string, g *Game) error {
 	if len(args) == 0 {
-		fmt.Println("go where?")
+		fmt.Fprintln(g.Out, "go where?")
 		return nil
 	}
 
@@ -33,7 +33,7 @@ func GoHandler(args []string, g *Game) error {
 
 	roomID, ok := currentRoom.Exits[Direction(args[0])]
 	if !ok {
-		fmt.Printf("you can't go %s\n", Direction(args[0]))
+		fmt.Fprintf(g.Out, "you can't go %s\n", Direction(args[0]))
 		return nil
 	}
 
@@ -46,7 +46,7 @@ func GoHandler(args []string, g *Game) error {
 // Register it as "take" in a CommandRegistry.
 func TakeHandler(args []string, g *Game) error {
 	if len(args) == 0 {
-		fmt.Println("take what?")
+		fmt.Fprintln(g.Out, "take what?")
 		return nil
 	}
 
@@ -63,7 +63,7 @@ func TakeHandler(args []string, g *Game) error {
 		}
 	}
 
-	fmt.Printf("there is no %q here\n", args[0])
+	fmt.Fprintf(g.Out, "there is no %q here\n", args[0])
 	return nil
 }
 
@@ -71,7 +71,7 @@ func TakeHandler(args []string, g *Game) error {
 // Register it as "drop" in a CommandRegistry.
 func DropHandler(args []string, g *Game) error {
 	if len(args) == 0 {
-		fmt.Println("drop what?")
+		fmt.Fprintln(g.Out, "drop what?")
 		return nil
 	}
 
@@ -82,7 +82,7 @@ func DropHandler(args []string, g *Game) error {
 
 	owned := g.World.PlayerHasObject(args[0])
 	if !owned {
-		fmt.Printf("you don't own %q\n", args[0])
+		fmt.Fprintf(g.Out, "you don't own %q\n", args[0])
 		return nil
 	}
 
@@ -94,13 +94,13 @@ func DropHandler(args []string, g *Game) error {
 func InventoryHandler(args []string, g *Game) error {
 	objects := g.World.PlayerInventory()
 	if len(objects) == 0 {
-		fmt.Println("nothing in the inventory")
+		fmt.Fprintln(g.Out, "nothing in the inventory")
 		return nil
 	}
 
-	fmt.Println("Inventory:")
+	fmt.Fprintln(g.Out, "Inventory:")
 	for _, object := range objects {
-		fmt.Printf("  %s\n", object.Name)
+		fmt.Fprintf(g.Out, "  %s\n", object.Name)
 	}
 
 	return nil
