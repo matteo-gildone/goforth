@@ -28,6 +28,25 @@ func (e *ObjectNotFoundErr) Error() string {
 	return fmt.Sprintf("object %q not found", e.ID)
 }
 
+// ValidationKind represents the type of world validation issue found.
+type ValidationKind string
+
+const (
+	// ValidationKindNoExits is returned when a room has no exits.
+	ValidationKindNoExits ValidationKind = "no_exits"
+	// ValidationKindUnregisteredExit is returned when a room exit points to a room not registered in the world.
+	ValidationKindUnregisteredExit ValidationKind = "unregistered_room"
+	// ValidationKindOneWay is returned when a room exit has no reverse exit.
+	ValidationKindOneWay ValidationKind = "one_way"
+)
+
+// ValidationIssue describe different type of validation issue found by Validate
+type ValidationIssue struct {
+	RoomID  string
+	Kind    ValidationKind
+	Message string
+}
+
 // World represents the game world.
 type World struct {
 	rooms           map[string]*Room
@@ -54,6 +73,19 @@ func (w *World) AddRoom(r *Room) error {
 	return nil
 }
 
+// AddRooms adds multiple rooms to the game world, making it available by ID.
+// It returns ErrInvalidRoom if r has an empty ID.
+func (w *World) AddRooms(rooms ...*Room) error {
+	for _, r := range rooms {
+		if r.ID == "" {
+			return ErrInvalidRoom
+		}
+		w.rooms[r.ID] = r
+	}
+
+	return nil
+}
+
 // AddObject adds o to the game world.
 // It returns ErrInvalidObject if o has an empty ID.
 func (w *World) AddObject(o *Object) error {
@@ -61,6 +93,19 @@ func (w *World) AddObject(o *Object) error {
 		return ErrInvalidObject
 	}
 	w.objects[o.ID] = o
+	return nil
+}
+
+// AddObjects adds multiple objects to the game world.
+// It returns ErrInvalidObject if o has an empty ID.
+func (w *World) AddObjects(objects ...*Object) error {
+	for _, o := range objects {
+		if o.ID == "" {
+			return ErrInvalidObject
+		}
+		w.objects[o.ID] = o
+	}
+
 	return nil
 }
 
@@ -74,32 +119,6 @@ func (w *World) RoomByID(id string) (*Room, bool) {
 func (w *World) ObjectByID(id string) (*Object, bool) {
 	object, ok := w.objects[id]
 	return object, ok
-}
-
-// ConnectRooms adds a directional exit from one room to another.
-// Returns RoomNotFoundErr if either rooms ID is not registered in the game world.
-func (w *World) ConnectRooms(fromID string, dir Direction, toID string) error {
-	currentRoom, ok := w.RoomByID(fromID)
-	if !ok {
-		return &RoomNotFoundErr{ID: fromID}
-	}
-
-	_, ok = w.RoomByID(toID)
-	if !ok {
-		return &RoomNotFoundErr{ID: toID}
-	}
-
-	currentRoom.Exits[dir] = toID
-	return nil
-}
-
-// ConnectRoomsBidirectional adds a directional exit from one room to another.
-// Returns RoomNotFoundErr if either rooms ID is not registered in the game world.
-func (w *World) ConnectRoomsBidirectional(fromID string, dir Direction, toID string) error {
-	if err := w.ConnectRooms(fromID, dir, toID); err != nil {
-		return err
-	}
-	return w.ConnectRooms(toID, oppositeDirectionMap[dir], fromID)
 }
 
 // PlaceObject sets the initial location of an object within the world.
@@ -157,4 +176,30 @@ func (w *World) MoveObjectToPlayer(objectID string) error {
 // PlayerHasObject check if player has an object with a certain ID
 func (w *World) PlayerHasObject(objectID string) bool {
 	return w.objectLocations[objectID] == "player"
+}
+
+// Validate checks the world for configuration issues.
+// Returns a slice of ValidationIssue describing each problem found.
+// An empty slice means the world is valid.
+func (w *World) Validate() []ValidationIssue {
+	var issues []ValidationIssue
+	for _, room := range w.rooms {
+		if len(room.Exits) == 0 {
+			issues = append(issues, ValidationIssue{room.ID, ValidationKindNoExits, fmt.Sprintf("room %q has no exits", room.ID)})
+		}
+
+		for direction, exit := range room.Exits {
+			exitRoom, ok := w.RoomByID(exit.RoomID)
+			oppositeDirection := oppositeDirectionMap[direction]
+			if !ok {
+				issues = append(issues, ValidationIssue{room.ID, ValidationKindUnregisteredExit, fmt.Sprintf("room %q does not exist", exit.RoomID)})
+				continue
+			}
+
+			if room.ID != exitRoom.Exits[oppositeDirection].RoomID {
+				issues = append(issues, ValidationIssue{room.ID, ValidationKindOneWay, fmt.Sprintf("room %q exit %q to %q has no reverse exit", room.ID, direction, exit.RoomID)})
+			}
+		}
+	}
+	return issues
 }

@@ -67,17 +67,13 @@ func TestGame_Run(t *testing.T) {
 }
 
 func setupGame(out *bytes.Buffer) (*Game, error) {
-	rooms := map[string]string{
-		"entrance": "Entrance",
-		"dining":   "Dining room",
-	}
-	objects := map[string]string{
-		"sword":  "Sword",
-		"shield": "Shield",
-		"key":    "Dwarven key",
-		"potion": "Health potion",
-		"mana":   "Mana potion",
-	}
+	entrance := NewRoom("entrance", "Entrance")
+	dining := NewRoom("dining", "Dining room")
+	sword := NewObject("sword", "Sword")
+	shield := NewObject("shield", "Shield")
+	key := NewObject("key", "Dwarven key")
+	potion := NewObject("potion", "Health potion")
+	mana := NewObject("mana", "Mana potion")
 
 	p := NewPlayer("entrance")
 	w := NewWorld()
@@ -85,28 +81,17 @@ func setupGame(out *bytes.Buffer) (*Game, error) {
 
 	RegisterDefaultHandlers(c)
 
-	for k, v := range rooms {
-		r := NewRoom(k, v)
-
-		err := w.AddRoom(r)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	for k, v := range objects {
-		r := NewObject(k, v)
-
-		err := w.AddObject(r)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	err := w.ConnectRoomsBidirectional("entrance", North, "dining")
+	err := w.AddObjects(sword, shield, key, potion, mana)
 	if err != nil {
 		return nil, err
 	}
+
+	err = w.AddRooms(entrance, dining)
+	if err != nil {
+		return nil, err
+	}
+
+	entrance.North(dining)
 
 	g := NewGame(w, p, c, out)
 	err = g.World.PlaceObject("sword", "entrance")
@@ -118,13 +103,11 @@ func setupGame(out *bytes.Buffer) (*Game, error) {
 }
 
 func setupAliasWorld(out *bytes.Buffer) (*Game, error) {
-	rooms := map[string]string{
-		"entrance": "Entrance",
-		"dining":   "Dining room",
-		"sport":    "Sport room",
-		"library":  "Library",
-		"kitchen":  "Kitchen",
-	}
+	entrance := NewRoom("entrance", "Entrance")
+	dining := NewRoom("dining", "Dining room")
+	sport := NewRoom("sport", "Sport room")
+	library := NewRoom("library", "a dusty library")
+	kitchen := NewRoom("kitchen", "a messy kitchen")
 
 	p := NewPlayer("entrance")
 	w := NewWorld()
@@ -132,34 +115,16 @@ func setupAliasWorld(out *bytes.Buffer) (*Game, error) {
 
 	RegisterDefaultHandlers(c)
 
-	for k, v := range rooms {
-		r := NewRoom(k, v)
-
-		err := w.AddRoom(r)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	err := w.ConnectRoomsBidirectional("entrance", North, "dining")
+	err := w.AddRooms(entrance, dining, sport, library, kitchen)
 	if err != nil {
 		return nil, err
 	}
 
-	err = w.ConnectRoomsBidirectional("entrance", East, "sport")
-	if err != nil {
-		return nil, err
-	}
-
-	err = w.ConnectRoomsBidirectional("entrance", West, "library")
-	if err != nil {
-		return nil, err
-	}
-
-	err = w.ConnectRoomsBidirectional("entrance", South, "kitchen")
-	if err != nil {
-		return nil, err
-	}
+	entrance.North(dining).East(sport).West(library).South(kitchen)
+	dining.South(entrance)
+	sport.West(entrance)
+	library.East(entrance)
+	kitchen.North(entrance)
 
 	g := NewGame(w, p, c, out)
 

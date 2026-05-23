@@ -31,13 +31,13 @@ func GoHandler(args []string, g *Game) error {
 		return &RoomNotFoundErr{ID: g.Player.CurrentRoom()}
 	}
 
-	roomID, ok := currentRoom.Exits[Direction(args[0])]
+	room, ok := currentRoom.Exits[Direction(args[0])]
 	if !ok {
 		fmt.Fprintf(g.Out, "you can't go %s\n", Direction(args[0]))
 		return nil
 	}
 
-	g.Player.MoveTo(roomID)
+	g.Player.MoveTo(room.RoomID)
 
 	return nil
 }
@@ -115,18 +115,18 @@ func QuitHandler(args []string, g *Game) error {
 // RegisterDefaultHandlers register the default handlers.
 func RegisterDefaultHandlers(r *CommandRegistry) {
 	aliases := map[string]Direction{
-		"n":     North,
-		"north": North,
-		"south": South,
-		"s":     South,
-		"west":  West,
-		"w":     West,
-		"east":  East,
-		"e":     East,
-		"up":    Up,
-		"u":     Up,
-		"down":  Down,
-		"d":     Down,
+		"n":     DirectionNorth,
+		"north": DirectionNorth,
+		"south": DirectionSouth,
+		"s":     DirectionSouth,
+		"west":  DirectionWest,
+		"w":     DirectionWest,
+		"east":  DirectionEast,
+		"e":     DirectionEast,
+		"up":    DirectionUp,
+		"u":     DirectionUp,
+		"down":  DirectionDown,
+		"d":     DirectionDown,
 	}
 
 	for alias, dir := range aliases {
