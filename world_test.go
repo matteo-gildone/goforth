@@ -520,13 +520,16 @@ func TestWorld_Validate(t *testing.T) {
 	t.Run("room is not bidirectional connected", func(t *testing.T) {
 		entrance := NewRoom("entrance", "Entrance")
 		dining := NewRoom("dining", "Dining room")
+		unrelated := NewRoom("kitchen", "Kitchen")
 
 		w := NewWorld()
-		err := w.AddRooms(entrance, dining)
+		err := w.AddRooms(entrance, dining, unrelated)
 		if err != nil {
 			t.Fatalf("expected no error got: %v", err)
 		}
 
+		dining.South(unrelated)
+		unrelated.North(dining)
 		entrance.North(dining)
 
 		issues := w.Validate()
@@ -539,6 +542,7 @@ func TestWorld_Validate(t *testing.T) {
 			t.Errorf("want: %q, got: %q", ValidationKindOneWay, issues[0].Kind)
 		}
 	})
+
 	t.Run("valid world returns no issues", func(t *testing.T) {
 		entrance := NewRoom("entrance", "Entrance")
 		dining := NewRoom("dining", "Dining room")

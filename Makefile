@@ -33,6 +33,13 @@ lint: ## Format and vet code
 
 check: lint test ## Run all checks
 
+release: ## Check tests pass and working tree is clean before releasing
+	@go test -race ./...
+	@git diff --exit-code || (echo "Working tree is dirty — commit or stash changes first"; exit 1)
+	@echo "Ready to release. Run:"
+	@echo "  git tag <version>"
+	@echo "  git push origin <version>"
+
 pkgdev: ## Trigger pkg.go.dev indexing
 	@test -n "$(VERSION)" || (echo "No git tag found"; exit 1)
 	@echo "https://proxy.golang.org/$(MODULE)/@v/$(VERSION).info"
