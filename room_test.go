@@ -16,4 +16,12 @@ func TestNewRoom(t *testing.T) {
 	if r.Description != roomDescription {
 		t.Errorf("want: %q, got: %q", roomDescription, r.Description)
 	}
+
+	if len(r.ExitDirections()) != 0 {
+		t.Errorf("want: %d, got: %d", 0, len(r.ExitDirections()))
+	}
+
+	if r.OnEnter != nil {
+		t.Error("expect no default initialisation")
+	}
 }

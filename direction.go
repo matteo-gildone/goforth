@@ -11,12 +11,3 @@ const (
 	DirectionUp    Direction = "up"
 	DirectionDown  Direction = "down"
 )
-
-var oppositeDirectionMap = map[Direction]Direction{
-	DirectionNorth: DirectionSouth,
-	DirectionSouth: DirectionNorth,
-	DirectionEast:  DirectionWest,
-	DirectionWest:  DirectionEast,
-	DirectionUp:    DirectionDown,
-	DirectionDown:  DirectionUp,
-}

@@ -16,9 +16,15 @@ type Command struct {
 	Args []string
 }
 
-// HandlerFunc is the type for all command handlers.
-// args are the tokens following the command name.
+// HandlerFunc is the signature for all command handlers.
+// args contains the tokens following the command verb.
 // Returning ErrQuit signals the game loop to exit cleanly.
+// Use this type when implementing custom commands:
+//
+//	r.Register("shout", goforth.HandlerFunc(func(args []string, g *goforth.Game) error {
+//	    fmt.Fprintln(g.Out, "AAAARGH!")
+//	    return nil
+//	}))
 type HandlerFunc func(args []string, g *Game) error
 
 // CommandRegistry maps command names to their handlers.

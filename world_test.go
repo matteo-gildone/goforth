@@ -9,7 +9,7 @@ func TestWorld_AddRoom(t *testing.T) {
 	entrance := NewRoom("entrance", "Entrance")
 
 	w := NewWorld()
-	err := w.AddRoom(entrance)
+	err := w.AddRooms(entrance)
 	if err != nil {
 		t.Fatalf("expected no error got: %v", err)
 	}
@@ -42,7 +42,7 @@ func TestWorld_AddRooms(t *testing.T) {
 
 func TestWorld_AddRoomError(t *testing.T) {
 	w := NewWorld()
-	err := w.AddRoom(&Room{})
+	err := w.AddRooms(&Room{})
 	if err == nil {
 		t.Fatal("expected error got nil")
 	}
@@ -61,8 +61,8 @@ func TestWorld_AddRoomsError(t *testing.T) {
 		t.Errorf("expected %v, got %v", ErrInvalidRoom, err)
 	}
 	_, ok := w.RoomByID("entrance")
-	if !ok {
-		t.Errorf("expected to find room %q", "entrance")
+	if ok {
+		t.Errorf("expected to not find room %q", "entrance")
 	}
 
 	_, ok = w.RoomByID("dining")
@@ -72,10 +72,10 @@ func TestWorld_AddRoomsError(t *testing.T) {
 }
 
 func TestWorld_AddObject(t *testing.T) {
-	sword := NewObject("sword", "Sword")
+	sword := NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true)
 
 	w := NewWorld()
-	err := w.AddObject(sword)
+	err := w.AddObjects(sword)
 	if err != nil {
 		t.Fatalf("expected no error got: %v", err)
 	}
@@ -89,7 +89,7 @@ func TestWorld_AddObject(t *testing.T) {
 func TestWorld_AddObjectError(t *testing.T) {
 	w := NewWorld()
 
-	err := w.AddObject(&Object{})
+	err := w.AddObjects(&Object{})
 	if err == nil {
 		t.Fatal("expected error got nil")
 	}
@@ -100,8 +100,8 @@ func TestWorld_AddObjectError(t *testing.T) {
 
 func TestWorld_AddObjects(t *testing.T) {
 	objects := []*Object{
-		NewObject("sword", "Sword"),
-		NewObject("shield", "Shield"),
+		NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
+		NewObject("shield", "Shield", "A cracked shield bearing the crest of a fallen house", true),
 	}
 
 	w := NewWorld()
@@ -120,7 +120,7 @@ func TestWorld_AddObjects(t *testing.T) {
 
 func TestWorld_AddObjectsError(t *testing.T) {
 	w := NewWorld()
-	err := w.AddObjects(NewObject("sword", "Sword"), &Object{}, NewObject("shield", "Shield"))
+	err := w.AddObjects(NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true), &Object{}, NewObject("shield", "Shield", "A cracked shield bearing the crest of a fallen house", true))
 	if err == nil {
 		t.Fatal("expected error got nil")
 	}
@@ -128,8 +128,8 @@ func TestWorld_AddObjectsError(t *testing.T) {
 		t.Errorf("expected %v, got %v", ErrInvalidObject, err)
 	}
 	_, ok := w.ObjectByID("sword")
-	if !ok {
-		t.Errorf("expected to find room %q", "sword")
+	if ok {
+		t.Errorf("expected to not find room %q", "sword")
 	}
 
 	_, ok = w.ObjectByID("shield")
@@ -159,7 +159,7 @@ func TestWorld_PlaceObject(t *testing.T) {
 		NewRoom("entrance", "Entrance"),
 	}
 	objects := []*Object{
-		NewObject("sword", "Sword"),
+		NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
 	}
 	objectID := "sword"
 	roomID := "entrance"
@@ -198,7 +198,7 @@ func TestWorld_PlaceObject_Errors(t *testing.T) {
 				NewRoom("entrance", "Entrance"),
 			},
 			objects: []*Object{
-				NewObject("sword", "Sword"),
+				NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
 			},
 			wantErrorType: "object",
 			wantErrID:     "shield",
@@ -211,7 +211,7 @@ func TestWorld_PlaceObject_Errors(t *testing.T) {
 				NewRoom("entrance", "Entrance"),
 			},
 			objects: []*Object{
-				NewObject("sword", "Sword"),
+				NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
 			},
 			wantErrorType: "room",
 			wantErrID:     "sport",
@@ -270,7 +270,7 @@ func TestWorld_ObjectsInRoom(t *testing.T) {
 				NewRoom("entrance", "Entrance"),
 			},
 			objects: []*Object{
-				NewObject("sword", "Sword"),
+				NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
 			},
 			objectsInRoom: map[string]string{},
 			wantLength:    0,
@@ -282,7 +282,7 @@ func TestWorld_ObjectsInRoom(t *testing.T) {
 				NewRoom("entrance", "Entrance"),
 			},
 			objects: []*Object{
-				NewObject("sword", "Sword"),
+				NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
 			},
 			objectsInRoom: map[string]string{
 				"sword": "entrance",
@@ -296,8 +296,8 @@ func TestWorld_ObjectsInRoom(t *testing.T) {
 				NewRoom("entrance", "Entrance"),
 			},
 			objects: []*Object{
-				NewObject("sword", "Sword"),
-				NewObject("shield", "Shield"),
+				NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
+				NewObject("shield", "Shield", "A cracked shield bearing the crest of a fallen house", true),
 			},
 			objectsInRoom: map[string]string{
 				"sword":  "entrance",
@@ -345,7 +345,7 @@ func TestWorld_PlayerInventory(t *testing.T) {
 				NewRoom("entrance", "Entrance"),
 			},
 			objects: []*Object{
-				NewObject("sword", "Sword"),
+				NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
 			},
 			objectsInRoom:      map[string]string{},
 			objectsInInventory: []string{},
@@ -357,8 +357,8 @@ func TestWorld_PlayerInventory(t *testing.T) {
 				NewRoom("entrance", "Entrance"),
 			},
 			objects: []*Object{
-				NewObject("sword", "Sword"),
-				NewObject("shield", "Shield"),
+				NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
+				NewObject("shield", "Shield", "A cracked shield bearing the crest of a fallen house", true),
 			},
 			objectsInRoom: map[string]string{
 				"sword": "entrance",
@@ -374,11 +374,11 @@ func TestWorld_PlayerInventory(t *testing.T) {
 				NewRoom("entrance", "Entrance"),
 			},
 			objects: []*Object{
-				NewObject("sword", "Sword"),
-				NewObject("shield", "Shield"),
-				NewObject("key", "Dwarven key"),
-				NewObject("potion", "Health potion"),
-				NewObject("mana", "Mana potion"),
+				NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
+				NewObject("shield", "Shield", "A cracked shield bearing the crest of a fallen house", true),
+				NewObject("key", "Dwarven key", "A heavy iron key, cold to the touch and stained with old blood", true),
+				NewObject("potion", "Health potion", "A vial of crimson liquid that pulses faintly in the dark", true),
+				NewObject("mana", "Mana potion", "A swirling blue draught that hums with arcane energy", true),
 			},
 			objectsInRoom: map[string]string{
 				"sword":  "entrance",
@@ -428,7 +428,7 @@ func TestWorld_MoveObjectToPlayer(t *testing.T) {
 		NewRoom("entrance", "Entrance"),
 	}
 	objects := []*Object{
-		NewObject("sword", "Sword"),
+		NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
 	}
 
 	w, err := setupWorld(rooms, objects)
@@ -451,7 +451,7 @@ func TestWorld_MoveObjectToPlayer_Error(t *testing.T) {
 		NewRoom("entrance", "Entrance"),
 	}
 	objects := []*Object{
-		NewObject("sword", "Sword"),
+		NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true),
 	}
 
 	w, err := setupWorld(rooms, objects)
@@ -471,97 +471,6 @@ func TestWorld_MoveObjectToPlayer_Error(t *testing.T) {
 	if objErr.ID != "shield" {
 		t.Errorf("want: %v, got: %v", "shield", objErr.ID)
 	}
-}
-
-func TestWorld_Validate(t *testing.T) {
-	t.Run("room with no exit", func(t *testing.T) {
-		entrance := NewRoom("entrance", "Entrance")
-
-		w := NewWorld()
-		err := w.AddRoom(entrance)
-		if err != nil {
-			t.Fatalf("expected no error got: %v", err)
-		}
-		issues := w.Validate()
-		if len(issues) != 1 {
-			t.Errorf("want: %d, got: %d", 1, len(issues))
-		}
-
-		if issues[0].Kind != ValidationKindNoExits {
-			t.Errorf("want: %q, got: %q", ValidationKindNoExits, issues[0].Kind)
-		}
-
-		if issues[0].RoomID != "entrance" {
-			t.Errorf("want: %q, got: %q", "entrance", issues[0].RoomID)
-		}
-	})
-
-	t.Run("room exit is not registered", func(t *testing.T) {
-		entrance := NewRoom("entrance", "Entrance")
-
-		w := NewWorld()
-		err := w.AddRoom(entrance)
-		if err != nil {
-			t.Fatalf("expected no error got: %v", err)
-		}
-
-		entrance.North(NewRoom("unregistered-room", "unregistered room"))
-
-		issues := w.Validate()
-		if len(issues) != 1 {
-			t.Errorf("want: %d, got: %d", 1, len(issues))
-		}
-
-		if issues[0].Kind != ValidationKindUnregisteredExit {
-			t.Errorf("want: %q, got: %q", ValidationKindUnregisteredExit, issues[0].Kind)
-		}
-	})
-
-	t.Run("room is not bidirectional connected", func(t *testing.T) {
-		entrance := NewRoom("entrance", "Entrance")
-		dining := NewRoom("dining", "Dining room")
-		unrelated := NewRoom("kitchen", "Kitchen")
-
-		w := NewWorld()
-		err := w.AddRooms(entrance, dining, unrelated)
-		if err != nil {
-			t.Fatalf("expected no error got: %v", err)
-		}
-
-		dining.South(unrelated)
-		unrelated.North(dining)
-		entrance.North(dining)
-
-		issues := w.Validate()
-
-		if len(issues) > 2 {
-			t.Errorf("want: %d, got: %d", 2, len(issues))
-		}
-
-		if issues[0].Kind != ValidationKindOneWay {
-			t.Errorf("want: %q, got: %q", ValidationKindOneWay, issues[0].Kind)
-		}
-	})
-
-	t.Run("valid world returns no issues", func(t *testing.T) {
-		entrance := NewRoom("entrance", "Entrance")
-		dining := NewRoom("dining", "Dining room")
-
-		w := NewWorld()
-		err := w.AddRooms(entrance, dining)
-		if err != nil {
-			t.Fatalf("expected no error got: %v", err)
-		}
-
-		entrance.North(dining)
-		dining.South(entrance)
-
-		issues := w.Validate()
-
-		if len(issues) != 0 {
-			t.Errorf("want: %d, got: %d", 0, len(issues))
-		}
-	})
 }
 
 func setupWorld(rooms []*Room, objects []*Object) (*World, error) {

@@ -28,25 +28,6 @@ func (e *ObjectNotFoundErr) Error() string {
 	return fmt.Sprintf("object %q not found", e.ID)
 }
 
-// ValidationKind represents the type of world validation issue found.
-type ValidationKind string
-
-const (
-	// ValidationKindNoExits is returned when a room has no exits.
-	ValidationKindNoExits ValidationKind = "no_exits"
-	// ValidationKindUnregisteredExit is returned when a room exit points to a room not registered in the world.
-	ValidationKindUnregisteredExit ValidationKind = "unregistered_room"
-	// ValidationKindOneWay is returned when a room exit has no reverse exit.
-	ValidationKindOneWay ValidationKind = "one_way"
-)
-
-// ValidationIssue describe different type of validation issue found by Validate
-type ValidationIssue struct {
-	RoomID  string
-	Kind    ValidationKind
-	Message string
-}
-
 // World represents the game world.
 type World struct {
 	rooms           map[string]*Room
@@ -63,16 +44,6 @@ func NewWorld() *World {
 	}
 }
 
-// AddRoom adds r to the game world, making it available by ID.
-// It returns ErrInvalidRoom if r has an empty ID.
-func (w *World) AddRoom(r *Room) error {
-	if r.ID == "" {
-		return ErrInvalidRoom
-	}
-	w.rooms[r.ID] = r
-	return nil
-}
-
 // AddRooms adds multiple rooms to the game world, making it available by ID.
 // It returns ErrInvalidRoom if r has an empty ID.
 func (w *World) AddRooms(rooms ...*Room) error {
@@ -80,19 +51,10 @@ func (w *World) AddRooms(rooms ...*Room) error {
 		if r.ID == "" {
 			return ErrInvalidRoom
 		}
+	}
+	for _, r := range rooms {
 		w.rooms[r.ID] = r
 	}
-
-	return nil
-}
-
-// AddObject adds o to the game world.
-// It returns ErrInvalidObject if o has an empty ID.
-func (w *World) AddObject(o *Object) error {
-	if o.ID == "" {
-		return ErrInvalidObject
-	}
-	w.objects[o.ID] = o
 	return nil
 }
 
@@ -103,9 +65,10 @@ func (w *World) AddObjects(objects ...*Object) error {
 		if o.ID == "" {
 			return ErrInvalidObject
 		}
+	}
+	for _, o := range objects {
 		w.objects[o.ID] = o
 	}
-
 	return nil
 }
 
@@ -176,30 +139,4 @@ func (w *World) MoveObjectToPlayer(objectID string) error {
 // PlayerHasObject check if player has an object with a certain ID
 func (w *World) PlayerHasObject(objectID string) bool {
 	return w.objectLocations[objectID] == "player"
-}
-
-// Validate checks the world for configuration issues.
-// Returns a slice of ValidationIssue describing each problem found.
-// An empty slice means the world is valid.
-func (w *World) Validate() []ValidationIssue {
-	var issues []ValidationIssue
-	for _, room := range w.rooms {
-		if len(room.Exits) == 0 {
-			issues = append(issues, ValidationIssue{room.ID, ValidationKindNoExits, fmt.Sprintf("room %q has no exits", room.ID)})
-		}
-
-		for direction, exit := range room.Exits {
-			exitRoom, ok := w.RoomByID(exit.RoomID)
-			oppositeDirection := oppositeDirectionMap[direction]
-			if !ok {
-				issues = append(issues, ValidationIssue{room.ID, ValidationKindUnregisteredExit, fmt.Sprintf("room %q does not exist", exit.RoomID)})
-				continue
-			}
-
-			if room.ID != exitRoom.Exits[oppositeDirection].RoomID {
-				issues = append(issues, ValidationIssue{room.ID, ValidationKindOneWay, fmt.Sprintf("room %q exit %q to %q has no reverse exit", room.ID, direction, exit.RoomID)})
-			}
-		}
-	}
-	return issues
 }

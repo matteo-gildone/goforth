@@ -69,11 +69,12 @@ func TestGame_Run(t *testing.T) {
 func setupGame(out *bytes.Buffer) (*Game, error) {
 	entrance := NewRoom("entrance", "Entrance")
 	dining := NewRoom("dining", "Dining room")
-	sword := NewObject("sword", "Sword")
-	shield := NewObject("shield", "Shield")
-	key := NewObject("key", "Dwarven key")
-	potion := NewObject("potion", "Health potion")
-	mana := NewObject("mana", "Mana potion")
+	sword := NewObject("sword", "Sword", "A blade forged in shadow, its edge never dulls", true)
+	shield := NewObject("shield", "Shield", "A cracked shield bearing the crest of a fallen house", true)
+	key := NewObject("key", "Dwarven key", "A heavy iron key, cold to the touch and stained with old blood", true)
+	potion := NewObject("potion", "Health potion", "A vial of crimson liquid that pulses faintly in the dark", true)
+	mana := NewObject("mana", "Mana potion", "A swirling blue draught that hums with arcane energy", true)
+	armor := NewObject("armor", "Armor", "A suit of blackened plate armour, too heavy to carry", false)
 
 	p := NewPlayer("entrance")
 	w := NewWorld()
@@ -81,7 +82,7 @@ func setupGame(out *bytes.Buffer) (*Game, error) {
 
 	RegisterDefaultHandlers(c)
 
-	err := w.AddObjects(sword, shield, key, potion, mana)
+	err := w.AddObjects(sword, shield, key, potion, mana, armor)
 	if err != nil {
 		return nil, err
 	}
@@ -121,10 +122,6 @@ func setupAliasWorld(out *bytes.Buffer) (*Game, error) {
 	}
 
 	entrance.North(dining).East(sport).West(library).South(kitchen)
-	dining.South(entrance)
-	sport.West(entrance)
-	library.East(entrance)
-	kitchen.North(entrance)
 
 	g := NewGame(w, p, c, out)
 
