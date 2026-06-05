@@ -30,7 +30,7 @@ func (g *Game) Run(r io.Reader) error {
 			return err
 		}
 	}
-	return nil
+	return scanner.Err()
 }
 
 // NewGame creates a new game with the given world, player and registry.
